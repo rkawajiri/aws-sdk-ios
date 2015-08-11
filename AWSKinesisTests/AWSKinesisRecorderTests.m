@@ -121,6 +121,19 @@ static NSString *testStreamName = nil;
     XCTAssertEqual([kinesisRecorder class], [AWSKinesisRecorder class]);
 }
 
+- (void)testSaveRecord {
+    NSString *string = @"0123456789";
+    NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+    AWSKinesisRecorder *kinesisRecorder = [AWSKinesisRecorder defaultKinesisRecorder];
+    [[[kinesisRecorder saveRecord:data
+                       streamName:@"testSaveLargeData"] continueWithBlock:^id(AWSTask *task) {
+      XCTAssertNil(task.exception);
+      XCTAssertNil(task.error);
+      XCTAssertNotNil(task.result);
+      return [kinesisRecorder removeAllRecords];
+    }] waitUntilFinished];
+}
+
 - (void)testSaveLargeData {
     NSMutableString *mutableString = [NSMutableString new];
     for (int i = 0; i < 5100; i++) {
